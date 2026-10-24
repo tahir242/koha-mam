@@ -1,0 +1,169 @@
+# Test every push and pull request, build a deployable package, and publish a GitHub Release with the
+# zip and its change log for every version tag (v1.2.3, or v1.2.3-beta / -rc.1 as a pre-release).
+name: CI and release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  PHP_VERSION: '8.4'
+  PHP_EXTENSIONS: fileinfo, gd, intl, zip, mbstring, pdo_sqlite, sqlite3, pcntl, posix
+  NODE_VERSION: '22'
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist
+          npm ci
+
+      - name: Build the front end
+        run: npm run build
+
+      - name: Prepare the environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run the test suite
+        run: php artisan test
+
+  package:
+    name: Build package
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Production build
+        run: |
+          composer install --no-dev --optimize-autoloader --no-interaction --no-progress --prefer-dist
+          npm ci
+          npm run build
+
+      - name: Create the release zip
+        id: zip
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = tag ]; then ref="${GITHUB_REF_NAME}"; else ref="${GITHUB_SHA::7}"; fi
+          name="koha-mam-${ref}.zip"
+          # Application with production dependencies and built assets; no development or local files.
+          zip -qr "/tmp/$name" . \
+            -x '.git/*' '.github/*' 'node_modules/*' 'tests/*' '.env' '.env.backup' '.env.production' \
+               'phpunit.xml' '.phpunit.result.cache' '.editorconfig' '.npmrc' \
+               'storage/logs/*.log' 'storage/framework/cache/data/*' 'storage/framework/sessions/*' \
+               'storage/framework/views/*.php' 'database/*.sqlite*'
+          mv "/tmp/$name" .
+          unzip -l "$name" | tail -1
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package
+          path: ${{ steps.zip.outputs.name }}
+          if-no-files-found: error
+
+  release:
+    name: Publish release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: package
+
+      - name: Check the tag matches the application version
+        id: version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          base="${tag%%-*}"
+          app=$(sed -n "s/^ *'version' => '\([^']*\)',.*/\1/p" config/dam.php | head -1)
+          if [ "$base" != "$app" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match config/dam.php version ${app}."
+            exit 1
+          fi
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          if [ "$tag" != "$base" ]; then echo "prerelease=true" >> "$GITHUB_OUTPUT"; else echo "prerelease=false" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Write the release notes
+        run: |
+          # The CHANGELOG.md section of this version; otherwise the commits since the previous tag.
+          awk -v v="${{ steps.version.outputs.base }}" '
+            index($0, "## [" v "]") == 1 { found = 1; next }
+            found && index($0, "## [") == 1 { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            previous=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+            echo "## Changes" > notes.md
+            git log --no-merges --pretty='- %s' ${previous:+"$previous.."}"${GITHUB_REF_NAME}" >> notes.md
+          fi
+          zip="koha-mam-${GITHUB_REF_NAME}.zip"
+          {
+            echo
+            echo "## Install"
+            echo
+            echo "Download \`$zip\` below: it contains the application with its PHP dependencies and built front end."
+            echo "Follow the [User Guide](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_REF_NAME}/docs/USER_GUIDE.md#14-installation-for-administrators)."
+            echo "The MAM works with the Koha plugin [koha-media-manager](https://github.com/tahir242/koha-media-manager/releases)."
+            echo
+            echo "SHA-256: \`$(sha256sum "$zip" | cut -d' ' -f1)\`"
+          } >> notes.md
+          cat notes.md
+
+      - name: Publish the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zip="koha-mam-${GITHUB_REF_NAME}.zip"
+          if [ "${{ steps.version.outputs.prerelease }}" = true ]; then flags="--prerelease"; else flags="--latest"; fi
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release upload "${GITHUB_REF_NAME}" "$zip" --clobber
+            gh release edit "${GITHUB_REF_NAME}" --notes-file notes.md
+          else
+            gh release create "${GITHUB_REF_NAME}" "$zip" --title "MAM — Media Asset Management for Koha ${GITHUB_REF_NAME}" --notes-file notes.md $flags
+          fi

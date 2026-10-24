@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="BROADCAST_CONNECTION" value="null"/>
+        <env name="CACHE_STORE" value="array"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
+        <env name="DB_URL" value=""/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="APP_URL" value="http://localhost"/>
+        <env name="DAM_PUBLIC_URL" value="https://dam.test"/>
+        <env name="DAM_LEGACY_VIEWER_PREFIXES" value=""/>
+        <env name="KOHA_INSTANCE_ID" value="koha-test"/>
+        <env name="KOHA_STAFF_URL" value="https://koha.test"/>
+        <env name="KOHA_OPAC_URL" value=""/>
+        <env name="KOHA_API_AUTH" value="oauth"/>
+        <env name="KOHA_API_CLIENT_ID" value="test-client"/>
+        <env name="KOHA_API_CLIENT_SECRET" value="test-secret"/>
+        <env name="KOHA_SSO_CLIENT_ID" value="koha-dam"/>
+        <env name="KOHA_SSO_CLIENT_SECRET" value="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+        <env name="DAM_ALLOW_INSECURE_HTTP" value="false"/>
+        <env name="DAM_BOOTSTRAP_ADMINS" value="rootadmin"/>
+        <env name="DAM_DEFAULT_ROLE" value="cataloguer"/>
+        <env name="DAM_MALWARE_SCANNER" value="none"/>
+        <env name="DAM_MALWARE_SCAN_REQUIRED" value="false"/>
+        <env name="DAM_DELIVERY_DRIVER" value="php"/>
+        <env name="DAM_DEFAULT_REQUIRES_APPROVAL" value="true"/>
+        <env name="DAM_ENFORCE_FOUR_EYES" value="true"/>
+        <env name="DAM_DUPLICATE_POLICY" value="block"/>
+        <env name="DAM_PROCESS_NICE" value=""/>
+        <env name="DAM_MEDIA_QUEUE_CONNECTION" value=""/>
+    </php>
+</phpunit>
