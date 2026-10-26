@@ -203,9 +203,19 @@ class CodeV2SsoTest extends TestCase
         $this->ssoCallback()->assertStatus(303)->assertRedirect(route('biblios.show', 12345));
     }
 
+    public function test_handoff_without_a_record_lands_on_the_dashboard(): void
+    {
+        $this->pendingState = $this->start();
+        $this->fakeExchange(['context' => ['biblio_id' => null, 'item_id' => null]]);
+
+        $this->ssoCallback()->assertStatus(303)->assertRedirect(route('dashboard'));
+        $this->assertAuthenticated();
+    }
+
     public function test_malformed_identity_or_context_is_rejected(): void
     {
         foreach ([
+            ['context' => ['biblio_id' => null, 'item_id' => 678]],
             ['identity' => ['patron_id' => '1001']],
             ['identity' => ['patron_id' => 0]],
             ['context' => ['biblio_id' => -1]],

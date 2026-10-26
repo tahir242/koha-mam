@@ -26,7 +26,8 @@ return new class extends Migration
             $table->boolean('counted')->default(false)->after('is_staff');
             $table->string('reason', 16)->nullable()->after('counted');
 
-            $table->index(['digital_asset_id', 'event', 'counted', 'created_at']);
+            // Explicit name: the generated one is longer than MySQL/MariaDB's 64-character limit.
+            $table->index(['digital_asset_id', 'event', 'counted', 'created_at'], 'media_access_events_counting_index');
         });
 
         // Until now every page load was stored as "view": those are opens.
@@ -50,7 +51,7 @@ return new class extends Migration
         DB::table('media_access_events')->where('event', 'open')->update(['event' => 'view']);
 
         Schema::table('media_access_events', function (Blueprint $table) {
-            $table->dropIndex(['digital_asset_id', 'event', 'counted', 'created_at']);
+            $table->dropIndex('media_access_events_counting_index');
             $table->dropColumn(['counted', 'reason']);
         });
 

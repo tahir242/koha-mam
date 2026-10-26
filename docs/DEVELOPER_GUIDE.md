@@ -123,11 +123,12 @@ MAM  ──303──► Koha run.pl …&op=continue&request&state   fixed URL, n
 Koha ──303──► /sso/koha?code=…&state=…              state must match this browser before any exchange
 MAM  ──POST─► {KOHA_STAFF_URL}/api/v1/contrib/media-manager/exchange   X-Media-Client / X-Media-Secret, {"code"}
 Koha ──200──► identity, context {biblio_id, branch, item_id}, capabilities, state
-MAM  ──303──► /staff/biblios/{biblio}[?item={item}]   session regenerated, capability ceiling stored
+MAM  ──303──► /staff/biblios/{biblio}[?item={item}] (or /staff without a record)   session regenerated, capability ceiling stored
 ```
 
 `CodeExchangeAdapter` verifies protocol, issuer = instance, audience, provider, positive integer ids
-(`item_id` optional), known capabilities including `media.access`, timestamps, correlation id and the
+(`item_id` optional; `biblio_id` null only together with a null `item_id`, for the plugin dashboard's
+**Go to MAM**), known capabilities including `media.access`, timestamps, correlation id and the
 returned state (constant time). Identities are upserted by `(koha_instance_id, patron_id)`.
 
 **Effective rights = MAM role ∩ Koha capability ceiling.**
@@ -411,7 +412,7 @@ regenerated); `.env` in a secrets vault. Redis needs no backup (the outbox lives
 |---|---|---|
 | **test** | Every push and pull request | PHP 8.4 + Node: `composer install`, `npm ci && npm run build`, `php artisan test` |
 | **package** | After tests | Production build (`composer install --no-dev`, built assets) packed as `koha-mam-<ref>.zip`, uploaded as an artifact |
-| **release** | Tags `v*` | Checks the tag against `config('dam.version')`, takes that version's section of `CHANGELOG.md` as notes, and publishes a GitHub Release with the zip (pre-release when the tag has a suffix such as `-beta`) |
+| **release** | Tags `v*` | Checks the tag against `config('dam.version')`, takes that version's section of `CHANGELOG.md` as notes, and publishes a GitHub Release with the zip (the Latest release for plain and `-beta` tags; a pre-release for `-alpha`, `-rc` and `-dev`) |
 
 **Cutting a release:** set `'version'` in `config/dam.php`, add a `## [x.y.z] - date` section to
 `CHANGELOG.md`, commit, then `git tag -a vx.y.z -m vx.y.z && git push origin main --follow-tags`.
