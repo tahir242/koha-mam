@@ -17,9 +17,17 @@ images, audio and video — with one click from Koha and no second password.**
 
 ---
 
+<p align="center">
+  <img src="docs/images/attach-media-flow.gif" width="880"
+       alt="Attach Media on a Koha record opens the MAM already signed in; a scanned chapter is uploaded, approved and published, and patrons open it from the OPAC in the secure viewer.">
+</p>
+
+> **Try it in one command.** [`demo/`](demo/README.md) runs Koha 26.05, the MAM and the Koha plugin, preconfigured:
+> `cd demo && docker compose up -d --build`.
+
 ## Why libraries choose it
 
-- **One click from the catalogue** — *Attach Media* on every record and in every item's *Actions* menu.
+- **One click from the catalogue** — *Attach Media* on every record and for every item (its *Actions* menu or next to *Edit*).
 - **No extra passwords** — secure single sign-on with Koha identities; Koha permissions stay in charge.
 - **Record and item level** — attach media to a title or to one copy, even before it has a barcode.
 - **Every common format** — PDF and Office documents, images, audio and video up to 4 GB, uploaded in resumable parts.
@@ -39,6 +47,18 @@ images, audio and video — with one click from Koha and no second password.**
                                                                                       │
  Patrons and staff ◄──────────── Secure viewer (/view/…) with view statistics ◄────────┘
 ```
+
+## Screenshots
+
+| **Record workspace**: upload, processing status | **Review**: preview, approve and publish |
+|---|---|
+| ![The MAM workspace of a Koha record with an uploaded document ready for review](docs/images/mam-record-workspace.png) | ![A document pending approval, with its preview and the Approve & publish button](docs/images/mam-review.jpg) |
+| **Secure viewer** for patrons: search, zoom, watermark | **Overview**: uploads, publications, processing |
+| ![The public viewer showing a scanned book page with a watermark](docs/images/public-viewer.jpg) | ![The MAM dashboard with media, publication and processing totals](docs/images/mam-dashboard.png) |
+
+Once published, the link appears in the Koha OPAC (MARC 856 for a record, the item's URL for an item):
+
+<p align="center"><img src="docs/images/opac-online-resource.png" width="720" alt="The Koha OPAC record with its View digital resource link"></p>
 
 ## Quick start
 
