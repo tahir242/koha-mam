@@ -1,6 +1,6 @@
 # MAM — Media Asset Management for Koha — Developer Guide
 
-**Version 1.1.0 (beta)** · Laravel 13 · PHP 8.3+ · Author: Tahir Ali Channa
+**Version 1.1.1 (beta)** · Laravel 13 · PHP 8.3+ · Author: Tahir Ali Channa
 
 For developers, integrators and operators: architecture, data model, the Koha integration, processing,
 delivery, view counting, security, testing, building, deployment and releases. Staff and administrators

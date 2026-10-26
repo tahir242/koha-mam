@@ -1,6 +1,6 @@
 # MAM — Media Asset Management for Koha — User Guide
 
-**Version 1.1.0 (beta)** · Works with Koha 26.05 (minimum 22.11) and the
+**Version 1.1.1 (beta)** · Works with Koha 26.05 (minimum 22.11) and the
 [Koha plugin](https://github.com/tahir242/koha-media-manager) · Author: Tahir Ali Channa
 
 This guide is for **library staff** (cataloguers, reviewers) and the **administrators** who install and
@@ -238,7 +238,7 @@ Administrators assign roles in **Administration → Staff & roles**.
 
 **Install**
 
-1. Download `koha-mam-v1.1.0-beta.zip` from the
+1. Download `koha-mam-v1.1.1-beta.zip` from the
    [Releases page](https://github.com/tahir242/koha-mam/releases) and unpack it (it already contains the PHP
    dependencies and the built front end), or clone the repository and build it (see the
    [Developer Guide](DEVELOPER_GUIDE.md#14-building-and-deploying)).
