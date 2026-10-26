@@ -393,7 +393,8 @@ On Windows add `--ignore-platform-req=ext-pcntl --ignore-platform-req=ext-posix`
 `queue:work`.
 
 **Production outline (Debian/Ubuntu):** PHP-FPM in a dedicated pool and user; Nginx server block with the root
-on `public/`, `client_max_body_size 20m`, an `internal` location per filesystem backend for
+on `public/`, `client_max_body_size 20m`, `.mjs` served as `text/javascript` (PDF.js loads its worker as a module; Debian's
+`mime.types` only maps `.js`), an `internal` location per filesystem backend for
 `DAM_DELIVERY_DRIVER=x-accel`, and SSO query strings excluded from access logs; MariaDB database separate from
 Koha's; Redis with dedicated DB numbers and prefixes; Horizon as a systemd service with `Nice`, `CPUQuota`
 and `MemoryMax` so conversions never starve Koha; the scheduler in cron.
