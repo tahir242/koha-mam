@@ -7,6 +7,22 @@ tagged version as the GitHub release notes.
 
 Companion Koha plugin: [koha-media-manager](https://github.com/tahir242/koha-media-manager).
 
+## [Unreleased]
+
+### Added
+
+- Sign-in without a record: a hand-off with `biblio_id: null` (and no item) opens the MAM dashboard. The
+  Koha plugin 1.1 uses it for **Go to MAM** on its dashboard.
+
+### Changed
+
+- Releases: `-beta` tags are published as the **Latest** release, so the repository page shows the zip.
+  Only `-alpha`, `-rc` and `-dev` tags are pre-releases.
+
+### Fixed
+
+- The view-counting migration failed on MySQL and MariaDB: its index name was longer than 64 characters.
+
 ## [1.0.0] - 2026-10-25
 
 First public release (beta).

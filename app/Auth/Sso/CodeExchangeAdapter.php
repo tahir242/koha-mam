@@ -166,7 +166,9 @@ class CodeExchangeAdapter implements KohaSsoAdapter
             'identity.instance' => ($data['identity']['instance'] ?? null) === $this->instanceId,
             'identity.patron_id' => $int($data['identity']['patron_id'] ?? null),
             'identity.userid' => $str($data['identity']['userid'] ?? null, 75) && ! preg_match('/[\x00-\x1F]/', $data['identity']['userid']),
-            'context.biblio_id' => $int($data['context']['biblio_id'] ?? null),
+            // Null (plugin 1.1+): the plugin dashboard's "Go to MAM", which opens the MAM dashboard; never with an item.
+            'context.biblio_id' => $int($data['context']['biblio_id'] ?? null)
+                || (($data['context']['biblio_id'] ?? null) === null && ($data['context']['item_id'] ?? null) === null),
             'context.branch' => is_string($data['context']['branch'] ?? null),
             // Optional (plugin 2.5+): absent or null for the record, else an item of that record.
             'context.item_id' => ($data['context']['item_id'] ?? null) === null || $int($data['context']['item_id']),
