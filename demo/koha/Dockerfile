@@ -18,7 +18,7 @@ RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.l
  && echo 'ServerName localhost' > /etc/apache2/conf-available/servername.conf && a2enconf servername
 
 # The MAM plugin: a .kpz placed in demo/koha/plugins/ wins; otherwise the published release is used.
-ARG PLUGIN_KPZ_URL=https://github.com/tahir242/koha-media-manager/releases/download/v1.0.0-beta/koha-media-manager-v1.0.0-beta.kpz
+ARG PLUGIN_KPZ_URL=https://github.com/tahir242/koha-media-manager/releases/download/v1.1.0-beta/koha-media-manager-v1.1.0-beta.kpz
 COPY plugins/ /opt/mam-plugin/
 RUN set -e; cd /opt/mam-plugin; \
     local_kpz=$(ls -1 *.kpz 2>/dev/null | head -n1 || true); \

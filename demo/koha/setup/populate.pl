@@ -36,7 +36,7 @@ my %prefs = (
     StaffClientBaseURL          => $ENV{KOHA_STAFF_URL},
     OPACBaseURL                 => $ENV{KOHA_OPAC_URL},
     LibraryName                 => 'MAM Demo Library',
-    LocalCoverImages            => 1,       # also gives each item an Actions menu, where the plugin adds Attach Media
+    LocalCoverImages            => 1,       # local cover images for the sample records
     OPACLocalCoverImages        => 1,
 );
 C4::Context->set_preference($_, $prefs{$_}) for keys %prefs;

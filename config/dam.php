@@ -23,7 +23,7 @@ $csv = static fn (?string $value): array => array_values(array_filter(array_map(
 return [
 
     // Application release; the release workflow checks Git tags against it.
-    'version' => '1.0.0',
+    'version' => '1.1.0',
 
     'institution' => [
         'name' => env('DAM_INSTITUTION_NAME', 'Sindh Institute of Urology and Transplantation'),
