@@ -1,0 +1,135 @@
+# Koha + Media Asset Management (MAM) demo. Start with:  docker compose up -d --build
+# Then open http://staff.localhost:8081 and sign in as librarian / Library2026 (see README.md).
+#
+# FOR EVALUATION ONLY: plain HTTP, fixed demo passwords, no virus scanning.
+
+name: koha-mam-demo
+
+x-urls: &urls
+  KOHA_STAFF_URL: http://staff.localhost:8081
+  KOHA_OPAC_URL: http://opac.localhost:8080
+  KOHA_INSTANCE_ID: demo-library
+  KOHA_SSO_CLIENT_ID: koha-mam
+  MAM_SHARED_ENV: /shared/mam.env
+
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root-demo
+      MARIADB_DATABASE: koha_library
+      MARIADB_USER: koha_library
+      MARIADB_PASSWORD: koha-demo
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - db:/var/lib/mysql
+    configs:
+      - source: mam-db
+        target: /docker-entrypoint-initdb.d/10-mam.sql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks: [demo]
+
+  koha:
+    build: ./koha
+    init: true          # reaps exited daemons (Plack, Zebra) so restarts work
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      <<: *urls
+      KOHA_INSTANCE: library
+      KOHA_OPAC_PORT: "8080"
+      KOHA_STAFF_PORT: "8081"
+      KOHA_DEMO_USER: librarian
+      KOHA_DEMO_PASSWORD: Library2026
+      DB_HOST: db
+      DB_NAME: koha_library
+      DB_USER: koha_library
+      DB_PASSWORD: koha-demo
+      MAM_URL: http://mam.localhost:8000
+      MAM_HEALTH_IP: 172.30.177.20
+    extra_hosts:
+      # The plugin's "Test connection" reaches the MAM at its public name.
+      - "mam.localhost:172.30.177.20"
+    ports:
+      - "8080:8080"   # OPAC
+      - "8081:8081"   # staff interface
+    volumes:
+      - koha:/var/lib/koha
+      - shared:/shared
+    networks:
+      demo: { ipv4_address: 172.30.177.10 }
+
+  mam:
+    build:
+      context: ..
+      dockerfile: demo/mam/Dockerfile
+      args:
+        WITH_OFFICE: "1"
+    init: true
+    restart: unless-stopped
+    depends_on:
+      koha: { condition: service_healthy }
+    environment:
+      <<: *urls
+      APP_NAME: Koha MAM
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://mam.localhost:8000
+      LOG_CHANNEL: stderr
+      DB_CONNECTION: mariadb
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: mam
+      DB_USERNAME: mam
+      DB_PASSWORD: mam-demo
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+      KOHA_API_VERIFY_TLS: "false"
+      DAM_ALLOW_INSECURE_HTTP: "true"
+      DAM_BOOTSTRAP_ADMINS: librarian
+      DAM_MALWARE_SCANNER: none
+      DAM_MALWARE_SCAN_REQUIRED: "false"
+      DAM_ENFORCE_FOUR_EYES: "false"   # one person can upload and approve in the demo
+      DAM_INSTITUTION_NAME: MAM Demo Library
+      DAM_INSTITUTION_SHORT_NAME: Demo
+      DAM_LIBRARY_NAME: MAM Demo Digital Library
+      DAM_WATERMARK_TEXT: MAM Demo Library
+      DAM_MARC_RESTRICTED_NOTE: Access restricted to library staff
+    extra_hosts:
+      # Koha's public names point at this container's loopback, forwarded to Koha (see supervisord.conf).
+      - "staff.localhost:127.0.0.1"
+      - "opac.localhost:127.0.0.1"
+    ports:
+      - "8000:8000"
+    volumes:
+      - mam:/var/www/mam/storage/app
+      - shared:/shared:ro
+    networks:
+      demo: { ipv4_address: 172.30.177.20 }
+
+configs:
+  # Second database for the MAM application (Koha's comes from the MARIADB_* settings).
+  mam-db:
+    content: |
+      CREATE DATABASE IF NOT EXISTS mam CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+      CREATE USER IF NOT EXISTS 'mam'@'%' IDENTIFIED BY 'mam-demo';
+      GRANT ALL PRIVILEGES ON mam.* TO 'mam'@'%';
+
+networks:
+  demo:
+    ipam:
+      config:
+        - subnet: 172.30.177.0/24
+
+volumes:
+  db:
+  koha:
+  mam:
+  shared:
