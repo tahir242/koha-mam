@@ -253,7 +253,8 @@ Administrators assign roles in **Administration → Staff & roles**.
    ```
 
 3. Point the web server at `public/`, make `storage/` and `bootstrap/cache/` writable, and allow 16–20 MB
-   request bodies (uploads are sent in parts).
+   request bodies (uploads are sent in parts). Serve `.mjs` files as `text/javascript` (the PDF viewer needs it;
+   `public/.htaccess` does this for Apache, for Nginx see the Developer Guide).
 4. Start the background worker and the scheduler (section 16).
 
 **Koha side**
@@ -320,6 +321,7 @@ Supervisor or the Windows Task Scheduler. Also run the scheduler every minute:
 | "Single sign-on is not configured correctly" | Run `php artisan dam:sso:doctor`; Instance ID, Client ID or secret differ from the plugin; run `config:cache` after editing `.env`. |
 | "The sign-in from Koha expired or was already used" | The page was refreshed or more than two minutes passed: click **Attach Media** again. Use the same MAM address everywhere (`APP_URL`). |
 | Record shows "Koha is currently unreachable" | **Administration → Koha integration → Test connection**; API key, `RESTOAuth2ClientCredentials`, certificates. |
+| PDFs show "This resource could not be displayed" | The web server sends `.mjs` files with the wrong type: serve them as `text/javascript`. |
 | Uploads stay in *Processing* | The queue worker is not running, or a conversion tool is missing (**Administration → Processing**). |
 | "Malware scanning is required" | ClamAV (`clamd`) is not running. |
 | Upload fails with HTTP 500 on Apache/FastCGI | Raise `FcgidMaxRequestLen` (or lower `DAM_UPLOAD_CHUNK_BYTES`). |

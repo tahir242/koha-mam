@@ -1,3 +1,8 @@
+# PDF.js loads its worker as an ES module (.mjs): browsers only run it when it is served as JavaScript.
+<IfModule mod_mime.c>
+    AddType text/javascript .mjs
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
