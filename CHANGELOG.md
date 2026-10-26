@@ -7,6 +7,12 @@ tagged version as the GitHub release notes.
 
 Companion Koha plugin: [koha-media-manager](https://github.com/tahir242/koha-media-manager).
 
+## [Unreleased]
+
+### Changed
+
+- `LICENSE` file with the MIT license the README already stated, so GitHub and package tools detect it.
+
 ## [1.1.1] - 2026-10-26
 
 ### Fixed
