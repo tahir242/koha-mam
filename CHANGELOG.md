@@ -7,6 +7,19 @@ tagged version as the GitHub release notes.
 
 Companion Koha plugin: [koha-media-manager](https://github.com/tahir242/koha-media-manager).
 
+## [1.1.1] - 2026-10-26
+
+### Fixed
+
+- PDFs showed "This resource could not be displayed" in the viewer when the web server sent PDF.js's
+  `.mjs` worker with the wrong type (Debian's nginx, some Apache setups). `public/.htaccess` now serves
+  `.mjs` as `text/javascript` for Apache, the demo's nginx does the same, and the User Guide and
+  Developer Guide explain it for other setups.
+
+### Changed
+
+- README: a walkthrough GIF of the whole flow, screenshots and a pointer to the one-command demo.
+
 ## [1.1.0] - 2026-10-26
 
 Use it with the Koha plugin 1.1.0, whose **Go to MAM** needs this release.
