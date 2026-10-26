@@ -7,12 +7,16 @@ tagged version as the GitHub release notes.
 
 Companion Koha plugin: [koha-media-manager](https://github.com/tahir242/koha-media-manager).
 
-## [Unreleased]
+## [1.1.0] - 2026-10-26
+
+Use it with the Koha plugin 1.1.0, whose **Go to MAM** needs this release.
 
 ### Added
 
 - Sign-in without a record: a hand-off with `biblio_id: null` (and no item) opens the MAM dashboard. The
   Koha plugin 1.1 uses it for **Go to MAM** on its dashboard.
+- `demo/`: Koha 26.05, the MAM and the plugin 1.1.0, preconfigured, started with one command
+  (`docker compose up -d --build`). For evaluation only; see `demo/README.md`.
 
 ### Changed
 

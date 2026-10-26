@@ -9,7 +9,7 @@ images, audio and video — with one click from Koha and no second password.**
 ![PHP](https://img.shields.io/badge/PHP-8.3%2B-777bb4)
 ![Status](https://img.shields.io/badge/status-beta-orange)
 
-**Version 1.0.0 (beta)** · Koha 26.05 (minimum 22.11) · Author: Tahir Ali Channa
+**Version 1.1.0 (beta)** · Koha 26.05 (minimum 22.11) · Author: Tahir Ali Channa
 
 > **Two parts, one product.** This repository is the **MAM application**. It works together with the Koha plugin
 > **[koha-media-manager](https://github.com/tahir242/koha-media-manager)**, which adds the *Attach Media* button to
@@ -43,7 +43,7 @@ images, audio and video — with one click from Koha and no second password.**
 ## Quick start
 
 1. **Install the Koha plugin** from [koha-media-manager releases](https://github.com/tahir242/koha-media-manager/releases).
-2. **Download** `koha-mam-v1.0.0-beta.zip` from [Releases](https://github.com/tahir242/koha-mam/releases), unpack it on
+2. **Download** `koha-mam-v1.1.0-beta.zip` from [Releases](https://github.com/tahir242/koha-mam/releases), unpack it on
    your web server and point the document root at `public/`.
 3. **Configure** `.env` (Koha addresses, API key, and the Instance ID, Client ID and secret shared with the plugin), then:
 
