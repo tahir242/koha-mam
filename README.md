@@ -8,6 +8,7 @@ images, audio and video — with one click from Koha and no second password.**
 ![Laravel](https://img.shields.io/badge/Laravel-13-ff2d20)
 ![PHP](https://img.shields.io/badge/PHP-8.3%2B-777bb4)
 ![Status](https://img.shields.io/badge/status-beta-orange)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 **Version 1.1.1 (beta)** · Koha 26.05 (minimum 22.11) · Author: Tahir Ali Channa
 
@@ -113,4 +114,6 @@ HTTPS on your staging server before production, and report issues on
 
 ## License
 
-MIT. © 2026 Tahir Ali Channa
+[MIT](LICENSE). © 2026 Tahir Ali Channa
+
+The companion [Koha plugin](https://github.com/tahir242/koha-media-manager) is licensed GPL-3.0-or-later, like Koha.
