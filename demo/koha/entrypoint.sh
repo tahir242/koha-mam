@@ -47,13 +47,23 @@ EOF
     koha-create --use-db --dbhost "$DB_HOST" "$INSTANCE" >/dev/null || true
     [ -f "$SITE_CONF" ] || { log "koha-create failed"; exit 1; }
 
-    # Plugins on, and the plugin's test-only plain-HTTP switch (this demo has no TLS).
+    # Plugins on, and the plugin's test-only plain-HTTP switch (this demo has no TLS). Only the top-level
+    # <config>: the Zebra <server> blocks have a <config> path of their own.
     xmlstarlet ed -L \
-        -u '//config/enable_plugins' -v 1 \
-        -d '//config/media_manager_insecure_http' \
-        -s '//config' -t elem -n media_manager_insecure_http -v 1 \
+        -u '/yazgfs/config/enable_plugins' -v 1 \
+        -d '/yazgfs/config/media_manager_insecure_http' \
+        -s '/yazgfs/config' -t elem -n media_manager_insecure_http -v 1 \
         "$SITE_CONF"
     koha-plack --enable "$INSTANCE" >/dev/null
+fi
+
+# Demo builds before 1.1.2 also wrote the switch into the Zebra <server><config> paths, which broke indexing
+# and left every catalogue search empty. Remove it there and rebuild the index below.
+reindex=0
+if xmlstarlet sel -t -c '/yazgfs/server/config/media_manager_insecure_http' "$SITE_CONF" | grep -q .; then
+    log "Repairing the Zebra configuration written by an older demo build..."
+    xmlstarlet ed -L -d '/yazgfs/server/config/media_manager_insecure_http' "$SITE_CONF"
+    reindex=1
 fi
 
 service memcached start >/dev/null 2>&1 || true
@@ -83,9 +93,12 @@ if [ ! -f "$PLUGIN_DIR/Koha/Plugin/Com/Library/MediaManager.pm" ] || [ "$fresh" 
 fi
 run_setup "$SETUP/link_mam.pl"
 
-if [ "$fresh" = "1" ]; then
+if [ "$fresh" = "1" ] || [ "$reindex" = "1" ]; then
     log "Indexing the catalogue..."
     koha-rebuild-zebra -f "$INSTANCE" >/dev/null 2>&1 || log "Zebra indexing reported problems (search may be empty)."
+fi
+if [ -z "$(ls -A /var/lib/koha/"$INSTANCE"/biblios/register 2>/dev/null)" ]; then
+    log "WARNING: the search index is empty, catalogue searches will find nothing. Check: koha-rebuild-zebra -f -v $INSTANCE"
 fi
 
 # --- Canonical addresses -----------------------------------------------------------------------------
