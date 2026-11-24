@@ -20,7 +20,7 @@ Companion Koha plugin: [koha-media-manager](https://github.com/tahir242/koha-med
   search index was never built. Existing demos repair the configuration and rebuild the index on the next
   start.
 - The scheduler logged a failed `horizon:snapshot` every five minutes when the queue was not Redis (the
-  default `database` queue, and the demo). It now runs only with Redis.
+  default `database` queue, and the demo). It now runs only when the main or the media queue uses Redis.
 
 ## [1.1.1] - 2026-10-26
 

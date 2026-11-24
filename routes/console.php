@@ -154,8 +154,12 @@ Artisan::command('dam:cleanup', function () {
 
 Schedule::command('dam:publications:relay')->everyMinute()->withoutOverlapping()->onOneServer();
 Schedule::command('dam:cleanup')->hourly()->withoutOverlapping();
-// Horizon needs Redis; with the default database queue its snapshot would fail every five minutes.
-Schedule::command('horizon:snapshot')->everyFiveMinutes()->when(fn () => config('queue.default') === 'redis');
+// Horizon needs Redis; with only database queues its snapshot would fail every five minutes. The media
+// queue can use Redis on its own (DAM_MEDIA_QUEUE_CONNECTION), with Horizon running its workers.
+Schedule::command('horizon:snapshot')->everyFiveMinutes()->when(fn () => collect([
+    config('queue.default'),
+    config('dam.processing.queue_connection'),
+])->filter()->contains(fn (string $connection) => config("queue.connections.{$connection}.driver") === 'redis'));
 Schedule::command(RunHealthChecksCommand::class)->everyMinute();
 Schedule::command(ScheduleCheckHeartbeatCommand::class)->everyMinute();
 Schedule::command('activitylog:clean', ['--days' => config('dam.audit.retention_days')])->daily();
