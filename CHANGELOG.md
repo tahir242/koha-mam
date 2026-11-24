@@ -9,6 +9,8 @@ Companion Koha plugin: [koha-media-manager](https://github.com/tahir242/koha-med
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-11-24
+
 ### Changed
 
 - `LICENSE` file with the MIT license the README already stated, so GitHub and package tools detect it.
