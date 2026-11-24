@@ -13,6 +13,15 @@ Companion Koha plugin: [koha-media-manager](https://github.com/tahir242/koha-med
 
 - `LICENSE` file with the MIT license the README already stated, so GitHub and package tools detect it.
 
+### Fixed
+
+- Demo: catalogue searches in the OPAC and staff interface found nothing ([#10](https://github.com/tahir242/koha-mam/issues/10)).
+  The setup wrote the plugin's plain-HTTP switch into Koha's Zebra configuration paths as well, so the
+  search index was never built. Existing demos repair the configuration and rebuild the index on the next
+  start.
+- The scheduler logged a failed `horizon:snapshot` every five minutes when the queue was not Redis (the
+  default `database` queue, and the demo). It now runs only when the main or the media queue uses Redis.
+
 ## [1.1.1] - 2026-10-26
 
 ### Fixed
